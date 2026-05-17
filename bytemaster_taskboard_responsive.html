@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Bytemaster Taskboard Responsive</title>
+<style>
+:root{
+  --bg:#07111f;--panel:#0f172a;--panel2:#111c31;--card:#18243a;--text:#e6edf7;--muted:#93a4ba;
+  --border:rgba(255,255,255,.12);--accent:#38bdf8;--red:#fb7185;--amber:#fbbf24;--green:#34d399;--purple:#a78bfa;--blue:#60a5fa;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 0 0,rgba(56,189,248,.20),transparent 28%),
+    radial-gradient(circle at 100% 0,rgba(167,139,250,.18),transparent 25%),
+    linear-gradient(135deg,#020617,#0f172a 55%,#111827);
+  color:var(--text);
+  min-height:100vh;
+}
+button,input,select,textarea{font:inherit}
+button,.btn{
+  border:1px solid var(--border);
+  background:linear-gradient(180deg,#18253d,#111c31);
+  color:var(--text);
+  border-radius:14px;
+  padding:10px 13px;
+  cursor:pointer;
+  min-height:42px;
+}
+button:hover,.btn:hover{border-color:var(--accent)}
+input,select,textarea{
+  width:100%;
+  background:#0b1323;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:11px 12px;
+}
+textarea{min-height:100px;resize:vertical}
+.appHeader{
+  padding:22px 24px 16px;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:rgba(7,17,31,.88);
+  backdrop-filter:blur(16px);
+  z-index:20;
+}
+.titleRow{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+h1{font-size:28px;line-height:1.05;margin:0;letter-spacing:-.03em}
+.sub{color:var(--muted);margin-top:7px;font-size:14px}
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+  align-items:center;
+}
+.toolbar input{max-width:280px}
+main{padding:20px 24px 88px}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+.kpi{
+  background:rgba(17,28,49,.9);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:15px;
+  box-shadow:0 18px 38px rgba(0,0,0,.24);
+}
+.kpi b{font-size:26px;display:block}.kpi span{color:var(--muted);font-size:13px}
+
+.mobileTabs{display:none}
+.boardWrap{position:relative}
+.board{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(260px,1fr));
+  gap:14px;
+  align-items:start;
+}
+.column{
+  background:rgba(15,23,42,.88);
+  border:1px solid var(--border);
+  border-radius:20px;
+  min-height:540px;
+  padding:12px;
+  box-shadow:0 18px 42px rgba(0,0,0,.22);
+}
+.colHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  gap:8px;
+}
+.colHead h2{font-size:16px;margin:0}
+.count{color:var(--muted);font-size:12px;border:1px solid var(--border);border-radius:999px;padding:4px 8px}
+.dropzone{min-height:470px}
+.card{
+  background:linear-gradient(180deg,#1b2a44,#111c31);
+  border:1px solid var(--border);
+  border-left:5px solid var(--blue);
+  border-radius:17px;
+  padding:14px;
+  margin:10px 0;
+  box-shadow:0 12px 26px rgba(0,0,0,.28);
+  cursor:grab;
+  touch-action:manipulation;
+}
+.card.dragging{opacity:.45}
+.card.red{border-left-color:var(--red)}.card.amber{border-left-color:var(--amber)}.card.green{border-left-color:var(--green)}.card.purple{border-left-color:var(--purple)}.card.blue{border-left-color:var(--blue)}
+.card h3{font-size:15px;margin:0 0 8px;line-height:1.28}
+.card p{color:#d4deeb;font-size:13px;line-height:1.45;margin:0 0 10px}
+.badges{display:flex;flex-wrap:wrap;gap:5px}
+.badge{font-size:11px;color:#dbeafe;border:1px solid var(--border);background:rgba(96,165,250,.1);padding:4px 7px;border-radius:999px}
+.actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.actions button{font-size:12px;padding:6px 8px;border-radius:10px;min-height:32px}
+.panel{
+  margin-top:18px;
+  background:rgba(15,23,42,.9);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:18px;
+}
+.panel h2{margin:0 0 12px}
+table{width:100%;border-collapse:collapse}
+td,th{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top;font-size:13px}
+th{color:#bfdbfe}
+dialog{
+  background:#0f172a;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:22px;
+  max-width:760px;
+  width:92%;
+  padding:0;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+dialog::backdrop{background:rgba(0,0,0,.62);backdrop-filter:blur(4px)}
+.modalHead{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modalBody{padding:18px;display:grid;gap:11px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{
+  position:fixed;
+  right:18px;
+  bottom:calc(18px + var(--safe-bottom));
+  background:#12223a;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:12px 14px;
+  display:none;
+  z-index:40;
+}
+.mobileBar{display:none}
+
+/* Desktop ancho */
+@media(min-width:1400px){
+  main,.appHeader{padding-left:34px;padding-right:34px}
+  .board{grid-template-columns:repeat(5,1fr)}
+}
+
+/* Tablet */
+@media(max-width:1180px){
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .board{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    padding-bottom:12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .column{
+    min-width:330px;
+    scroll-snap-align:start;
+  }
+}
+
+/* Móvil */
+@media(max-width:720px){
+  body{background:linear-gradient(180deg,#07111f,#0f172a 46%,#111827)}
+  .appHeader{
+    padding:16px 14px 12px;
+    border-bottom-color:rgba(255,255,255,.08);
+  }
+  .titleRow{display:block}
+  h1{font-size:22px;max-width:320px}
+  .sub{font-size:12px;line-height:1.35}
+  .toolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+  .toolbar input{
+    max-width:none;
+    grid-column:1 / -1;
+    order:-1;
+  }
+  .toolbar button,.toolbar .btn{
+    padding:9px 10px;
+    min-height:40px;
+    font-size:13px;
+    text-align:center;
+  }
+  .toolbar button:nth-of-type(4),
+  .toolbar label,
+  .toolbar button:nth-of-type(5){
+    display:none;
+  }
+  main{
+    padding:14px 12px calc(88px + var(--safe-bottom));
+  }
+  .summary{
+    display:flex;
+    overflow-x:auto;
+    gap:10px;
+    margin:0 -12px 14px;
+    padding:0 12px 4px;
+    scroll-snap-type:x mandatory;
+  }
+  .kpi{
+    min-width:140px;
+    border-radius:18px;
+    padding:13px;
+    scroll-snap-align:start;
+  }
+  .kpi b{font-size:22px}
+  .kpi span{font-size:12px}
+  .mobileTabs{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    margin:0 -12px 10px;
+    padding:0 12px 6px;
+    position:sticky;
+    top:116px;
+    z-index:12;
+    background:linear-gradient(180deg,rgba(7,17,31,.96),rgba(7,17,31,.82));
+    backdrop-filter:blur(12px);
+  }
+  .mobileTabs button{
+    white-space:nowrap;
+    border-radius:999px;
+    min-height:36px;
+    padding:8px 12px;
+    font-size:13px;
+  }
+  .board{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    gap:12px;
+    margin:0 -12px;
+    padding:0 12px 12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .column{
+    min-width:calc(100vw - 36px);
+    max-width:calc(100vw - 36px);
+    min-height:calc(100vh - 310px);
+    border-radius:22px;
+    padding:12px;
+    scroll-snap-align:center;
+  }
+  .colHead h2{font-size:15px}
+  .dropzone{min-height:360px}
+  .card{
+    border-radius:18px;
+    padding:13px;
+    margin:9px 0;
+    cursor:default;
+  }
+  .card h3{font-size:15px}
+  .card p{
+    font-size:12.5px;
+    display:-webkit-box;
+    -webkit-line-clamp:4;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .actions button{
+    min-height:34px;
+    font-size:12px;
+  }
+  .panel{
+    padding:14px;
+    border-radius:20px;
+  }
+  .panel table,.panel thead,.panel tbody,.panel tr,.panel th,.panel td{
+    display:block;
+    width:100%;
+  }
+  .panel tr{
+    border:1px solid var(--border);
+    border-radius:16px;
+    margin:10px 0;
+    overflow:hidden;
+  }
+  .panel th{display:none}
+  .panel td{
+    border-bottom:1px solid var(--border);
+    padding:10px 12px;
+  }
+  .panel td:last-child{border-bottom:0}
+  .panel td:before{
+    content:attr(data-label);
+    display:block;
+    color:#93c5fd;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:4px;
+  }
+  dialog{
+    width:100%;
+    max-width:none;
+    height:auto;
+    max-height:92dvh;
+    margin:auto 0 0;
+    border-radius:24px 24px 0 0;
+  }
+  .modalBody{padding:14px;max-height:calc(92dvh - 66px);overflow:auto}
+  .row{grid-template-columns:1fr}
+  .mobileBar{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:10px 12px calc(10px + var(--safe-bottom));
+    background:rgba(7,17,31,.92);
+    backdrop-filter:blur(18px);
+    border-top:1px solid var(--border);
+    z-index:30;
+  }
+  .mobileBar button{
+    font-size:12px;
+    min-height:44px;
+    border-radius:16px;
+  }
+}
+
+/* Móviles pequeños */
+@media(max-width:380px){
+  h1{font-size:20px}
+  .toolbar{grid-template-columns:1fr}
+  .toolbar button,.toolbar .btn{width:100%}
+  .mobileTabs{top:154px}
+  .column{min-width:calc(100vw - 26px);max-width:calc(100vw - 26px)}
+}
+</style>
+</head>
+<body>
+<header class="appHeader">
+  <div class="titleRow">
+    <div>
+      <h1>Bytemaster · Taskboard</h1>
+      <div class="sub">Trello responsive para incidencias, soluciones y seguimiento con ChatGPT</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button onclick="openNew()">+ Nueva tarjeta</button>
+    <button onclick="copyBoardPrompt()">Copiar resumen</button>
+    <button onclick="copyReportPrompt()">Prompt informe</button>
+    <button onclick="exportJSON()">Exportar JSON</button>
+    <label class="btn">Importar JSON <input type="file" accept="application/json" onchange="importJSON(event)" hidden></label>
+    <button onclick="resetBoard()">Restaurar</button>
+    <input id="search" placeholder="Buscar tarea, responsable, solución..." oninput="render()"/>
+  </div>
+</header>
+
+<main>
+<section class="summary">
+  <div class="kpi"><b id="totalCards">0</b><span>Tareas totales</span></div>
+  <div class="kpi"><b id="urgentCards">0</b><span>Alta prioridad</span></div>
+  <div class="kpi"><b id="doneCards">0</b><span>Completadas</span></div>
+  <div class="kpi"><b id="blockedCards">0</b><span>Bloqueadas</span></div>
+</section>
+
+<nav class="mobileTabs" id="mobileTabs"></nav>
+
+<section class="boardWrap">
+  <section class="board" id="board"></section>
+</section>
+
+<section class="panel">
+  <h2>Uso rápido</h2>
+  <table id="helpTable">
+    <tr><th>Necesidad</th><th>Botón</th><th>Qué hacer</th></tr>
+    <tr><td data-label="Necesidad">Priorizar</td><td data-label="Botón">Copiar resumen</td><td data-label="Qué hacer">Pégamelo aquí y te devuelvo foco, riesgos y próximos pasos.</td></tr>
+    <tr><td data-label="Necesidad">Informar a Jesús/Germán</td><td data-label="Botón">Prompt informe</td><td data-label="Qué hacer">Pégamelo y preparo informe, correo o minuta.</td></tr>
+    <tr><td data-label="Necesidad">Guardar estado</td><td data-label="Botón">Exportar JSON</td><td data-label="Qué hacer">Descarga copia del tablero. En móvil lo puedes guardar en Archivos.</td></tr>
+  </table>
+</section>
+</main>
+
+<div class="mobileBar">
+  <button onclick="openNew()">+ Tarea</button>
+  <button onclick="copyBoardPrompt()">ChatGPT</button>
+  <button onclick="copyReportPrompt()">Informe</button>
+</div>
+
+<dialog id="modal">
+  <div class="modalHead"><strong id="modalTitle">Tarjeta</strong><button onclick="closeModal()">Cerrar</button></div>
+  <div class="modalBody">
+    <input id="fTitle" placeholder="Título"/>
+    <textarea id="fDesc" placeholder="Descripción"></textarea>
+    <div class="row">
+      <select id="fStatus"></select>
+      <select id="fPriority">
+        <option>Alta</option><option>Media</option><option>Baja</option><option>Bloqueada</option>
+      </select>
+    </div>
+    <div class="row">
+      <input id="fOwner" placeholder="Responsable"/>
+      <input id="fDue" type="date"/>
+    </div>
+    <input id="fTags" placeholder="Etiquetas separadas por coma"/>
+    <textarea id="fSolution" placeholder="Solución propuesta / siguiente paso"></textarea>
+    <button onclick="saveCard()">Guardar tarjeta</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const columns = [
+  ["backlog","Backlog"],
+  ["todo","Por hacer"],
+  ["doing","En curso"],
+  ["blocked","Bloqueado"],
+  ["done","Hecho"]
+];
+
+const seed = [
+ {id:crypto.randomUUID(),status:"todo",priority:"Alta",color:"purple",title:"Reunión de clasificación con Germán",owner:"Carlos + Germán",due:"",tags:["Operaciones","Procedimiento"],desc:"Clasificar incidencias de abril: proceso, formación, dato maestro, parametrización o bug.",solution:"Crear matriz incidencia → causa → responsable → solución temporal → solución definitiva."},
+ {id:crypto.randomUUID(),status:"todo",priority:"Alta",color:"amber",title:"Regularización automática de fechas",owner:"Carlos / Sistemas",due:"",tags:["Fechas","Importación","Quick fix"],desc:"Hay expedientes sin fecha de llegada/salida. Esto bloquea o degrada facturación.",solution:"Vía 1: importación masiva desde fuente fiable para subsanar histórico. Vía 2: analizar origen para que se cargue automáticamente o bloquee antes de facturar."},
+ {id:crypto.randomUUID(),status:"todo",priority:"Alta",color:"green",title:"Checklist operativo pre-facturación",owner:"Carlos",due:"",tags:["Manual","Facturación"],desc:"Definir mínimos antes de enviar/cerrar expediente.",solution:"Cliente, referencia, fechas, transportista, servicios extra, pesos coherentes e hito enviado a facturación."},
+ {id:crypto.randomUUID(),status:"doing",priority:"Alta",color:"red",title:"Autransa · desglose CAD00038/2026",owner:"Facturación / Carlos seguimiento",due:"",tags:["Cliente","Urgente"],desc:"Cliente solicita desglose claro de importes, concepto/origen y fecha del viaje.",solution:"Enviar desglose de la factura actual y revisar plantilla futura para incluir detalle suficiente."},
+ {id:crypto.randomUUID(),status:"backlog",priority:"Media",color:"blue",title:"Partidas de tránsito no visibles o incorrectas",owner:"Sistemas / Bytemaster",due:"",tags:["Bug","Tránsitos"],desc:"Ejemplo indicado: ALG/00504/26.",solution:"Reproducir caso, documentar pantallazos y abrir incidencia técnica si no es error de uso."},
+ {id:crypto.randomUUID(),status:"backlog",priority:"Media",color:"amber",title:"Servicios adicionales no facturados",owner:"Operaciones + Facturación",due:"",tags:["Servicios","Aduanas","UAR"],desc:"Visitas/servicios no aparecen como líneas facturables.",solution:"No depender solo de observaciones. Crear flujo para generar línea de venta/pre-factura."},
+ {id:crypto.randomUUID(),status:"backlog",priority:"Media",color:"purple",title:"Cliente incorrecto, especialmente SEWS",owner:"Operaciones",due:"",tags:["Cliente","Dato maestro"],desc:"Se detectan expedientes con cliente a facturar incorrecto.",solution:"Revisión puntual + regla de validación por tráfico/delegación/referencia."},
+ {id:crypto.randomUUID(),status:"blocked",priority:"Bloqueada",color:"red",title:"Errores técnicos al facturar",owner:"Sistemas / Proveedor",due:"",tags:["USD","Concepto","Bloqueo"],desc:"Cambio inesperado de divisa a USD y errores por concepto que obligan a reiniciar.",solution:"Abrir ticket con expediente, usuario, fecha/hora, pantallazo y pasos de reproducción."}
+];
+
+let cards = JSON.parse(localStorage.getItem("bytemasterBoardResponsive") || "null") || seed;
+let editing = null;
+
+function save(){localStorage.setItem("bytemasterBoardResponsive", JSON.stringify(cards));}
+function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2200);}
+function esc(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function colorFor(p){return p==="Alta"?"red":p==="Media"?"amber":p==="Baja"?"green":"red";}
+
+function renderTabs(){
+  const tabs=document.getElementById("mobileTabs");
+  tabs.innerHTML="";
+  columns.forEach(([key,label])=>{
+    const n=cards.filter(c=>c.status===key).length;
+    const b=document.createElement("button");
+    b.textContent=`${label} · ${n}`;
+    b.onclick=()=>document.querySelector(`[data-col="${key}"]`)?.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
+    tabs.appendChild(b);
+  });
+}
+
+function render(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  columns.forEach(([key,label])=>{
+    const filtered = cards.filter(c=>c.status===key && JSON.stringify(c).toLowerCase().includes(q));
+    const col = document.createElement("div");
+    col.className="column";
+    col.dataset.col=key;
+    col.innerHTML=`<div class="colHead"><h2>${label}</h2><span class="count">${filtered.length}</span></div><div class="dropzone" data-status="${key}"></div>`;
+    board.appendChild(col);
+    const dz = col.querySelector(".dropzone");
+    filtered.forEach(c=>dz.appendChild(cardEl(c)));
+    dz.addEventListener("dragover",e=>e.preventDefault());
+    dz.addEventListener("drop",e=>{
+      e.preventDefault();
+      const id=e.dataTransfer.getData("text/plain");
+      const card=cards.find(x=>x.id===id);
+      if(card){card.status=key;save();render();toast("Tarjeta movida");}
+    });
+  });
+  document.getElementById("totalCards").textContent = cards.length;
+  document.getElementById("urgentCards").textContent = cards.filter(c=>c.priority==="Alta").length;
+  document.getElementById("doneCards").textContent = cards.filter(c=>c.status==="done").length;
+  document.getElementById("blockedCards").textContent = cards.filter(c=>c.status==="blocked" || c.priority==="Bloqueada").length;
+  renderTabs();
+}
+
+function cardEl(c){
+  const el=document.createElement("div");
+  el.className=`card ${c.color || colorFor(c.priority)}`;
+  el.draggable=true;
+  el.innerHTML=`
+    <h3>${esc(c.title)}</h3>
+    <p>${esc(c.desc)}</p>
+    ${c.solution?`<p><strong>Solución:</strong> ${esc(c.solution)}</p>`:""}
+    <div class="badges">
+      <span class="badge">${esc(c.priority)}</span>
+      <span class="badge">${esc(c.owner||"Sin responsable")}</span>
+      ${c.due?`<span class="badge">Fecha: ${esc(c.due)}</span>`:""}
+      ${(c.tags||[]).map(t=>`<span class="badge">${esc(t)}</span>`).join("")}
+    </div>
+    <div class="actions">
+      <button onclick="editCard('${c.id}')">Editar</button>
+      <button onclick="moveNext('${c.id}')">Avanzar</button>
+      <button onclick="copyCardPrompt('${c.id}')">Prompt</button>
+      <button onclick="deleteCard('${c.id}')">Borrar</button>
+    </div>`;
+  el.addEventListener("dragstart",e=>{el.classList.add("dragging");e.dataTransfer.setData("text/plain",c.id);});
+  el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  return el;
+}
+
+function moveNext(id){
+  const c=cards.find(x=>x.id===id);
+  const idx=columns.findIndex(([k])=>k===c.status);
+  c.status=columns[Math.min(idx+1,columns.length-1)][0];
+  save();render();toast("Tarjeta avanzada");
+}
+
+function fillStatus(){
+  const s=document.getElementById("fStatus"); s.innerHTML="";
+  columns.forEach(([key,label])=>{let o=document.createElement("option");o.value=key;o.textContent=label;s.appendChild(o);});
+}
+function openNew(){
+  editing=null;fillStatus();
+  document.getElementById("modalTitle").textContent="Nueva tarjeta";
+  ["fTitle","fDesc","fOwner","fDue","fTags","fSolution"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("fStatus").value="todo";
+  document.getElementById("fPriority").value="Media";
+  modal.showModal();
+}
+function editCard(id){
+  editing=id;fillStatus();const c=cards.find(x=>x.id===id);
+  document.getElementById("modalTitle").textContent="Editar tarjeta";
+  fTitle.value=c.title;fDesc.value=c.desc;fStatus.value=c.status;fPriority.value=c.priority;fOwner.value=c.owner||"";fDue.value=c.due||"";fTags.value=(c.tags||[]).join(", ");fSolution.value=c.solution||"";
+  modal.showModal();
+}
+function closeModal(){modal.close();}
+function saveCard(){
+  const data={title:fTitle.value,desc:fDesc.value,status:fStatus.value,priority:fPriority.value,owner:fOwner.value,due:fDue.value,tags:fTags.value.split(",").map(x=>x.trim()).filter(Boolean),solution:fSolution.value,color:colorFor(fPriority.value)};
+  if(editing){Object.assign(cards.find(x=>x.id===editing),data);} else {cards.push({id:crypto.randomUUID(),...data});}
+  save();render();closeModal();toast("Tarjeta guardada");
+}
+function deleteCard(id){if(confirm("¿Borrar tarjeta?")){cards=cards.filter(c=>c.id!==id);save();render();toast("Tarjeta borrada");}}
+function resetBoard(){if(confirm("¿Restaurar tablero inicial y perder cambios locales?")){cards=seed;save();render();toast("Tablero restaurado");}}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(cards,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="bytemaster-taskboard-responsive.json";a.click();URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();r.onload=()=>{try{cards=JSON.parse(r.result);save();render();toast("Tablero importado");}catch{alert("JSON no válido")}};r.readAsText(file);
+}
+function boardText(){
+  return columns.map(([key,label])=>{
+    const list=cards.filter(c=>c.status===key);
+    return `## ${label}\n`+list.map(c=>`- ${c.title} | Prioridad: ${c.priority} | Responsable: ${c.owner||"N/A"} | Solución/siguiente paso: ${c.solution||"N/A"}`).join("\n");
+  }).join("\n\n");
+}
+async function copy(txt){
+  try{await navigator.clipboard.writeText(txt);toast("Copiado al portapapeles");}
+  catch{prompt("Copia este texto:",txt);}
+}
+function copyBoardPrompt(){
+  copy(`Actúa como PM/operaciones. Revisa este tablero de incidencias Bytemaster, prioriza, detecta riesgos y dime qué debería hacer Carlos a continuación:\n\n${boardText()}`);
+}
+function copyReportPrompt(){
+  copy(`Redacta un informe profesional para Jesús y Germán sobre el estado de estas incidencias Bytemaster. Incluye resumen ejecutivo, avances, bloqueos, decisiones necesarias, responsables y próximos pasos:\n\n${boardText()}`);
+}
+function copyCardPrompt(id){
+  const c=cards.find(x=>x.id===id);
+  copy(`Ayúdame a gestionar esta tarea de Bytemaster. Dame plan de acción, riesgos, dependencias, mensaje para responsables y solución recomendada:\n\n${JSON.stringify(c,null,2)}`);
+}
+fillStatus(); render();
+</script>
+</body>
+</html>
